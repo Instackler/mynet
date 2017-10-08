@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <winsock2.h>
-#include <vector>
 #include "Ws2tcpip.h"
 #include "mynet.h"
 
@@ -89,6 +88,17 @@ namespace MyNet
 		InetPton(AF_INET, ip.c_str(), &addr.sin_addr.S_un.S_addr);
 	}
 
+	bool Address::operator==(const Address& rhs) const
+	{
+		return (addr.sin_addr.s_addr == rhs.addr.sin_addr.s_addr &&
+				addr.sin_port == rhs.addr.sin_port) ? true : false;
+	}
+
+	bool Address::operator!=(const Address& rhs) const
+	{
+		return !(*this == rhs);
+	}
+
 	void disable_logging()
 	{
 		logging_enabled = false;
@@ -139,6 +149,17 @@ namespace MyNet
 	{
 		if (recvfrom(sockhandler::is_server() ? *sockhandler::get_serv_sock() : *sockhandler::get_client_sock(),
 					 buffer, size, NULL, (sockaddr*)&(a->addr), &(a->len)) == SOCKET_ERROR)
+		{
+			logging_enabled ? printf("recvfrom() failed with error code : %d", WSAGetLastError()) : 0;
+			return -1;
+		}
+		return 0;
+	}
+
+	int recieve_peek(char* buffer, int size, Address* a)
+	{
+		if (recvfrom(sockhandler::is_server() ? *sockhandler::get_serv_sock() : *sockhandler::get_client_sock(),
+			buffer, size, MSG_PEEK, (sockaddr*)&(a->addr), &(a->len)) == SOCKET_ERROR)
 		{
 			logging_enabled ? printf("recvfrom() failed with error code : %d", WSAGetLastError()) : 0;
 			return -1;

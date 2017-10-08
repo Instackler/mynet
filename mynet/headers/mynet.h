@@ -31,7 +31,10 @@ namespace MyNet
 		std::string to_str(); // Returns human-readable string representation of an Address
 		Address();
 		Address(std::string ip, unsigned short port);
+		bool operator==(const Address&) const;
+		bool operator!=(const Address&) const;
 		friend int recieve(char* buffer, int size, Address* addr); // Recieve a datagram from address addr
+		friend int recieve_peek(char* buffer, int size, Address* addr); //Get address of the sender
 		friend int send(char* msg, int length, Address* to); // Send datagram to address to
 	};
 	
